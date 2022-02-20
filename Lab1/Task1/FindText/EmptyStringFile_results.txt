@@ -1,0 +1,2 @@
+Invalid arguments
+Searching string can't be empty string

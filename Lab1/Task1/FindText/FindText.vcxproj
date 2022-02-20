@@ -161,6 +161,7 @@
     <Text Include="..\CopyFile\CodeOld.txt" />
     <Text Include="EmptyFile.txt" />
     <Text Include="EmptyFile_results.txt" />
+    <Text Include="EmptyStringFile_results.txt" />
     <Text Include="FileWithoutSearchingText.txt" />
     <Text Include="MultiLineFile_results.txt" />
     <Text Include="MultiLineFile.txt" />
