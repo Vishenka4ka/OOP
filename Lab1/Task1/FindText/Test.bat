@@ -45,9 +45,14 @@ fc %TEMP%output.txt RepeatedTextInLine_results.txt > nul || goto err
 echo Test 8 passed succsessfully
 
 REM Поиск пустой строки в файле
-REM %MyProgram% MultiLineFile.txt "" > %TEMP%output.txt || goto err
-REM fc %TEMP%output.txt EmptyStringFile_results.txt > nul || goto err
-REM echo Test 9 passed succsessfully
+%MyProgram% MultiLineFile.txt "" > %TEMP%output.txt && goto err
+fc %TEMP%output.txt EmptyStringFile_results.txt > nul || goto err
+echo Test 9 passed succsessfully
+
+REM Поиск пустой строки в файле
+%MyProgram% MultiLineFileR.txt "needle" > %TEMP%output.txt && goto err
+fc %TEMP%output.txt WrongFileName_result.txt > nul || goto err
+echo Test 10 passed succsessfully
 
 echo All test passed succsessfully
 exit /B 0

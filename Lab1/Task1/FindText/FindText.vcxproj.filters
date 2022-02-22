@@ -59,6 +59,9 @@
     <Text Include="EmptyStringFile_results.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="WrongFileName_result.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Test.bat">

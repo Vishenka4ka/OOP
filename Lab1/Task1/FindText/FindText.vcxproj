@@ -171,6 +171,7 @@
     <Text Include="RepeatedTextInLine_results.txt" />
     <Text Include="SingleLineFile.txt" />
     <Text Include="SingleLineFile_results.txt" />
+    <Text Include="WrongFileName_result.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FileWithoutSearchingText_results.txt" />

@@ -13,68 +13,34 @@ struct Args
 	string searchingText;
 };
 
-using ArgumentsCheckCallback = function<void(int argc, string SearchingString)>;
+using ArgumentsCheckCallback = function<void()>;
 
 optional<Args> ParseArgs(
 	int argc, 
-	char* argv[], 
-	const ArgumentsCheckCallback& errorsCallback)
+	char* argv[],
+	const ArgumentsCheckCallback& callback)
 {
-	if (argc != 3 || argv[2] == "")
+	if (argc != 3)
 	{
-		errorsCallback(argc, argv[2]);
+		callback();
 		return nullopt;
 	}
-
+ 
 	Args args;
 	args.inputFileName = argv[1];
 	args.searchingText = argv[2];
 	return args;
 }
 
-void ArgumentsErrors(int argc, string searchingString)
-{
-	if (argc != 3)
-	{
-		cout << "Invalid arguments count\n";
-		cout << "Usage: CopiFile.exe <input file name> <text to search>" << endl;
-	}
-
-	if (searchingString == "") 
-	{
-		cout << "Invalid arguments\n";
-		cout << "Searching string can't be empty string" << endl;
-	}
-};
-
-using InputFileErrorsCallback = function<void(ifstream& input, const string inputFileName)>;
-
-bool InputFileErrorsCheck(
-	ifstream& input, 
-	const string inputFileName,
-	const InputFileErrorsCallback& errorsCallback)
+bool InputFileErrorsCheck(ifstream& input, const string inputFileName)
 {
 	bool errors = false;
 	if (!input.is_open() || input.bad())
 	{
-		errorsCallback(input, inputFileName);
 		errors = true;
 	}
 
 	return errors;
-}
-
-void PrintInputFileErrors(ifstream& input, const string inputFileName)
-{
-	if (!input.is_open())
-	{
-		cout << "Failed to open '" << inputFileName << "' for reading" << endl;
-	}
-
-	if (input.bad())
-	{
-		cout << "Failed to read data from input file" << endl;
-	}
 }
 
 using FindStringCallback = function<void(int lineIndex)>;
@@ -109,6 +75,30 @@ void FindStingInStream(
 	}
 }
 
+void PrintInputFileErrors(ifstream& input, const string inputFileName)
+{
+	if (!input.is_open())
+	{
+		cout << "Failed to open input file for reading" << endl;
+	}
+
+	if (input.bad())
+	{
+		cout << "Failed to read data from input file" << endl;
+	}
+}
+
+void PrintArgumentsErrors()
+{
+	cout << "Invalid arguments count\n";
+	cout << "Usage: CopiFile.exe <input file name> <text to search>" << endl;
+};
+void PrintStringIsEmptyError()
+{
+	cout << "Invalid arguments\n";
+	cout << "Searching string can't be empty string" << endl;
+};
+
 void PrintFoundLineIndex(int lineIndex)
 {
 	cout << lineIndex << endl;
@@ -121,22 +111,32 @@ void PrintMassageIfNoStringFound()
 
 int main(int argc, char* argv[])
 {
-	auto args = ParseArgs(argc, argv, ArgumentsErrors);
+	auto args = ParseArgs(argc, argv, PrintArgumentsErrors);
 
-	// Открываем входной файл
-	ifstream input;
-	input.open(args->inputFileName);
-
-	// Проверяем, не возникают ли ошибки при открытии файла 
-	// или считывании из него информации
-	if (InputFileErrorsCheck(input, args->inputFileName, PrintInputFileErrors))
+	if (!args)
 	{
 		return 1;
 	}
+
+	if (args->searchingText == "")
+	{
+		PrintStringIsEmptyError();
+		return 1;
+	}
+
+	ifstream input;
+	input.open(args->inputFileName);
+
+	if (InputFileErrorsCheck(input, args->inputFileName))
+	{
+		PrintInputFileErrors(input, args->inputFileName);
+		return 1;
+	}
 	
-	// Выводим результат поиска строки в файле
-	FindStingInStream(input, args->searchingText, PrintFoundLineIndex, PrintMassageIfNoStringFound);
+	FindStingInStream(
+		input, args->searchingText, 
+		PrintFoundLineIndex, 
+		PrintMassageIfNoStringFound);
 
 	return 0;
 }
-
