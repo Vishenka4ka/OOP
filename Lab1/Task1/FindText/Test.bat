@@ -49,7 +49,7 @@ REM Поиск пустой строки в файле
 fc %TEMP%output.txt EmptyStringFile_results.txt > nul || goto err
 echo Test 9 passed succsessfully
 
-REM Поиск пустой строки в файле
+REM Ошибка в воде имени файла
 %MyProgram% MultiLineFileR.txt "needle" > %TEMP%output.txt && goto err
 fc %TEMP%output.txt WrongFileName_result.txt > nul || goto err
 echo Test 10 passed succsessfully
