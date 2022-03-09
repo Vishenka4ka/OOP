@@ -9,128 +9,75 @@ using namespace std;
 
 struct Args 
 {
-	char *inputNumber;
+	//сохранить сразу число в нужном типе
+		uint8_t inputNumber;
 };
 
-using Callback = function<void()>;
+struct ParseArgsException
+{
+	string message;
 
-optional<Args> ParseArgs(
-	int argc,
-	char* argv[],
-	const Callback& argsCountCallback = Callback(),
-	const Callback& numberIsEmptyCallback = Callback())
+	ParseArgsException(const string& message) :
+		message(message)
+	{}
+};
+
+optional<Args> ParseArgs(int argc, char* argv[])
 {
 	if (argc != 2)
 	{
-		argsCountCallback();
-
+		throw ParseArgsException("Invalid arguments count\nUsage: flipbyte.exe <number>");
 		return nullopt;
 	}
-
-	if (!*argv[1])
+	else if (!*argv[1])
 	{
-		numberIsEmptyCallback();
-
+		throw ParseArgsException("Invalid arguments\nNumber can't be empty");
 		return nullopt;
 	}
 
 	Args args;
-	args.inputNumber = argv[1];
+	size_t pos{};
 
-	return args;
-};
+	args.inputNumber = stoi(argv[1], &pos, 10);
 
-bool CheckArguments(
-	optional<Args> args)
-{
-	if (!args)
+	if (argv[1][pos] != '\0')
 	{
-		return 0;
-	}
-};
-
-bool CheckNumber(
-	char *end,
-	long Number,
-	const Callback& wrongNotationCallback = Callback(),
-	const Callback& wrongRangeCallback = Callback())
-{
-	if (*end)
-	{
-		wrongNotationCallback();
-	
-		return 0;
+		throw ParseArgsException("Number must be in decimal notation");
 	}
 	
-	if (Number > 255 || Number < 0)
+	if ((args.inputNumber < 0) || (args.inputNumber > 255))
 	{
-		wrongRangeCallback();
-
-		return 0;
+		throw ParseArgsException("Number must be in the range from 0 to 255");
 	}
-}
 
-void ReverseByte(long& Number)
+	return args;		
+};
+
+//задать через тип uint8_t
+int ReverseNumber(uint8_t number)
 {
-	long changedNumber = 0;
+	uint8_t changedNumber = 0;
 	for (int i = 0; i < 4; i++)
 	{
 		changedNumber +=
-			(((Number >> i) & 1) << (7 - i)) + 
-			(((Number >> (7 - i)) & 1) << i);
+			(((number >> i) & 1) << (7 - i)) + 
+			(((number >> (7 - i)) & 1) << i);
 	}
-	cout << changedNumber << "\n";
-};
 
-void PrintArgumentsCountErrors()
-{
-	cout << "Invalid arguments count\n";
-	cout << "Usage: flipbyte.exe <number>" << endl;
+	return changedNumber;
 };
-
-void PrintNumberIsEmptyError()
-{
-	cout << "Invalid arguments\n";
-	cout << "Number can't be empty" << endl;
-};
-
-void PrintWrongNotationError()
-{
-	cout << "Number must be in decimal notation" << endl;
-};
-
-void PrintWrongRangeError()
-{
-	cout << "Number must be in the range from 0 to 255" << endl;
-};
-
 
 int main(int argc, char* argv[])
 {
-	auto args = ParseArgs(
-		argc, 
-		argv, 
-		PrintArgumentsCountErrors, 
-		PrintNumberIsEmptyError);
-
-	if (!CheckArguments(args))
+	try
 	{
-		return 1;
+		auto args = ParseArgs(argc, argv);
+		cout << ReverseNumber(args->inputNumber) << "\n";
 	}
-
-	char* end;
-	long Number = strtol(args->inputNumber, &end, 10);
-
-	if (!CheckNumber(
-		end, 
-		Number, 
-		PrintWrongNotationError, 
-		PrintWrongRangeError))
+	catch (ParseArgsException& e)
 	{
-		return 1;
+		cout << e.message << endl;
 	}
-
-	ReverseByte(Number);
  
 	return 0;
 }
